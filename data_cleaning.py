@@ -1,12 +1,18 @@
 import os
+import tarfile
 
 RAW_DATA_DIRECTORY = 'Raw data'
 RAW_DATA_FILENAME = 'dblp.txt'
+ZIPPED_RAW_DATA_FILENAME = 'dblp.v8.tgz'
 PREPROCESSED_DATA_DIRECTORY = 'Preprocessed data'
 PREPROCESSED_DATA_FILENAME = 'preprocessed_dblp.txt'
 
 if not os.path.exists(PREPROCESSED_DATA_DIRECTORY):
     os.makedirs(PREPROCESSED_DATA_DIRECTORY)
+
+tar = tarfile.open(RAW_DATA_DIRECTORY + '/' + ZIPPED_RAW_DATA_FILENAME, "r:gz")
+tar.extractall(RAW_DATA_DIRECTORY)
+tar.close()
 
 # Let's do a sanity check. The raw dataset should have 3,272,991 papers
 # and 8,466,859 citation relationships
