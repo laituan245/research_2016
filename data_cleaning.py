@@ -6,6 +6,7 @@ RAW_DATA_FILENAME = 'dblp.txt'
 ZIPPED_RAW_DATA_FILENAME = 'dblp.v8.tgz'
 PREPROCESSED_DATA_DIRECTORY = 'Preprocessed data'
 PREPROCESSED_DATA_FILENAME = 'preprocessed_dblp.txt'
+ID_TITLE_MAPPINGS_FILENAME = 'id_title_mappings.txt'
 
 if not os.path.exists(PREPROCESSED_DATA_DIRECTORY):
     os.makedirs(PREPROCESSED_DATA_DIRECTORY)
@@ -25,6 +26,7 @@ for line in f:
 assert (nb_papers == 3272991)
 assert (nb_citation_rels == 8466859)
 print 'The sanity check was completed'
+f.close()
 
 # Let's remove unnecessary information from the raw dataset.
 raw_file = open(RAW_DATA_DIRECTORY + '/' + RAW_DATA_FILENAME, 'r')
@@ -47,3 +49,19 @@ for line in raw_file:
         new_file.write(line)
 print 'Removed unnecessary information from the raw dataset.'
 print 'Created a new file ' + PREPROCESSED_DATA_FILENAME
+raw_file.close()
+new_file.close()
+
+# Let's create a file that contains all the mappings between index it
+# and paper title
+raw_file = open(RAW_DATA_DIRECTORY + '/' + RAW_DATA_FILENAME, 'r')
+new_file = open(PREPROCESSED_DATA_DIRECTORY + '/' + ID_TITLE_MAPPINGS_FILENAME, 'w+')
+for line in raw_file:
+    if '#*' in line:
+        new_file.write(line[2:])
+    elif '#index' in line:
+        new_file.write(line[6:] + '\n\r')
+print 'Found all the mappings between index id and paper title'
+print 'Created a new file ' + ID_TITLE_MAPPINGS_FILENAME
+raw_file.close()
+new_file.close()
