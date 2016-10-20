@@ -58,9 +58,9 @@ raw_file = open(RAW_DATA_DIRECTORY + '/' + RAW_DATA_FILENAME, 'r')
 new_file = open(PREPROCESSED_DATA_DIRECTORY + '/' + ID_TITLE_MAPPINGS_FILENAME, 'w+')
 for line in raw_file:
     if '#*' in line:
-        new_file.write(line[2:])
+        new_file.write(line)
     elif '#index' in line:
-        new_file.write(line[6:] + '\n\r')
+        new_file.write(line.strip() + '\n\r')
 print 'Found all the mappings between index id and paper title'
 print 'Created a new file ' + ID_TITLE_MAPPINGS_FILENAME
 raw_file.close()
