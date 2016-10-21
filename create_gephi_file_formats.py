@@ -34,11 +34,12 @@ def main():
     cnt = 0
     f = open(PREPROCESSED_DATA_DIRECTORY + '/' + ID_TITLE_MAPPINGS_FILENAME, 'r')
     for line in f:
-        if '#*' in line:
+        line = line.strip()
+        if line.startswith('#*'):
             cnt += 1
-            titles.append(line.strip()[2:].lower())
-        elif '#index' in line:
-            ids.append(line.strip()[6:].lower())
+            titles.append(line[2:].lower())
+        elif line.startswith('#index'):
+            ids.append(line[6:].lower())
     assert(cnt == 3272991)
     for i in range(cnt):
         if not ids[i] in nodes:
@@ -52,13 +53,14 @@ def main():
     years = []
     f = open(PREPROCESSED_DATA_DIRECTORY + '/' + PREPROCESSED_DATA_FILENAME, 'r')
     for line in f:
-        if '#index' in line:
+        line = line.strip()
+        if line.startswith('#index'):
             cnt += 1
-            cur_id = line.strip()[6:]
-        elif '#t' in line:
-            cur_year = int(line.strip()[2:])
+            cur_id = line[6:]
+        elif line.startswith('#t'):
+            cur_year = int(line[2:])
             years.append(cur_year)
-        elif '#%' in line:
+        elif line.startswith('#%'):
             pass
         else:
             nodes[cur_id]['year'] = cur_year
@@ -88,12 +90,13 @@ def main():
         f = open(PREPROCESSED_DATA_DIRECTORY + '/' + PREPROCESSED_DATA_FILENAME, 'r')
         cur_id = 'None'
         for line in f:
-            if '#index' in line:
-                cur_id = line.strip()[6:]
-            elif '#t' in line:
+            line = line.strip()
+            if line.startswith('#index'):
+                cur_id = line[6:]
+            elif line.startswith('#t'):
                 pass
-            elif '#%' in line:
-                target_id = line.strip()[2:]
+            elif line.startswith('#%'):
+                target_id = line[2:]
                 cur_year = nodes[cur_id]['year']
                 target_year = nodes[target_id]['year']
                 if (cur_year >= YEAR_MIN and cur_year <= YEAR_MAX):
