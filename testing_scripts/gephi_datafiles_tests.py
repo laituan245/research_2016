@@ -11,6 +11,8 @@ GEPHI_EDGE_DATA_FILENAME = 'Edges1.csv'
 YEAR_MIN = 1980
 YEAR_MAX = 2015
 
+id_year_mapping = {}
+
 def remove_special_chars(my_string):
     # Replace all special characters
     rs = ''
@@ -65,12 +67,17 @@ def random_testing(random_nb):
         elif line.startswith('#*'):
             cur_title = remove_special_chars(line.lower())
         elif line.startswith('#%'):
-            pub_list.append(line[2:])
+            if id_year_mapping[line[2:]] >= YEAR_MIN and id_year_mapping[line[2:]] <= YEAR_MAX:
+                pub_list.append(line[2:])
             if line[2:].strip() == my_node['Id']:
-                expected_in_nodes_list.append(cur_id)
+                if id_year_mapping[cur_id] >= YEAR_MIN and id_year_mapping[cur_id] <= YEAR_MAX:
+                    expected_in_nodes_list.append(cur_id)
         elif len(line) == 0:
             if cur_id == my_node['Id']:
-                expected_year = cur_year
+                if expected_year < 0:
+                    expected_year = cur_year
+                else:
+                    expected_year = min(expected_year, cur_year)
                 expected_titles.append(cur_title)
                 expected_out_nodes_list += pub_list
             cur_id = 'None'; cur_year = -1; cur_title = 'None'; pub_list = [];
@@ -81,7 +88,11 @@ def random_testing(random_nb):
     expected_in_nodes_list = list(set(expected_in_nodes_list))
     expected_in_nodes_list.sort()
 
-    print 'Total degree = ' + str(len(my_node['in_nodes']) + len(my_node['out_nodes']))
+    print 'Id = ' + my_node['Id']
+    print 'Label = ' + my_node['Label']
+    print 'Out degree = ' + str(len(my_node['out_nodes']))
+    print 'In degree = ' + str(len(my_node['in_nodes']))
+    print 'start_year = ' + str(my_node['start_year'])
     assert(my_node['out_nodes'] == expected_out_nodes_list)
     assert(my_node['in_nodes'] == expected_in_nodes_list)
     assert(my_node['Label'] in expected_titles)
@@ -95,6 +106,27 @@ def main():
         for row in reader:
             nb_nodes_considered = nb_nodes_considered + 1
         nb_nodes_considered -= 1 # The first row is the header row
+
+    raw_file = open(os.path.dirname(__file__) + '/../' + RAW_DATA_DIRECTORY + '/' + RAW_DATA_FILENAME, 'r')
+    cur_id = 'None'; cur_year = -1;
+    for line in raw_file:
+        line = line.strip()
+        if line.startswith('#index'):
+            cur_id = line[6:]
+        elif line.startswith('#t'):
+            cur_year = int(line[2:])
+        elif len(line) == 0:
+            if not cur_id in id_year_mapping:
+                id_year_mapping[cur_id] = cur_year
+            else:
+                id_year_mapping[cur_id] = min(id_year_mapping[cur_id], cur_year)
+    nb_nodes_within_year_range = 0
+    for cur_id in id_year_mapping.keys():
+        if id_year_mapping[cur_id] >= YEAR_MIN and id_year_mapping[cur_id] <= YEAR_MAX:
+            nb_nodes_within_year_range += 1
+    raw_file.close()
+
+    assert(nb_nodes_within_year_range == nb_nodes_considered)
 
     nb_random_tests = 100
     print 'About to conduct ' + str(nb_random_tests) + ' random tests'

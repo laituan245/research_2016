@@ -63,7 +63,10 @@ def main():
         elif line.startswith('#%'):
             pass
         else:
-            nodes[cur_id]['year'] = cur_year
+            if nodes[cur_id]['year'] < 0:
+                nodes[cur_id]['year'] = cur_year
+            else:
+                nodes[cur_id]['year'] = min(nodes[cur_id]['year'], cur_year)
     assert(cnt == 3272991)
     f.close()
     years = list(set(years))
