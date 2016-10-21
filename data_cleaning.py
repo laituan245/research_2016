@@ -24,8 +24,9 @@ def main():
     nb_citation_rels = 0
     f = open(RAW_DATA_DIRECTORY + '/' + RAW_DATA_FILENAME, 'r')
     for line in f:
-        nb_papers += (1 if '#*' in line else 0)
-        nb_citation_rels += (1 if '#%' in line else 0)
+        line = line.strip()
+        nb_papers += (1 if line.startswith('#*') else 0)
+        nb_citation_rels += (1 if line.startswith('#%') else 0)
     assert (nb_papers == 3272991)
     assert (nb_citation_rels == 8466859)
     print 'The sanity check was completed'
@@ -35,21 +36,22 @@ def main():
     raw_file = open(RAW_DATA_DIRECTORY + '/' + RAW_DATA_FILENAME, 'r')
     new_file = open(PREPROCESSED_DATA_DIRECTORY + '/' + PREPROCESSED_DATA_FILENAME, 'w+')
     for line in raw_file:
+        line = line.strip()
         is_unnecessary = False
-        if '#*' in line:
+        if line.startswith('#*'):
             # We don't need the info about the title (at least for now)
             is_unnecessary = True
-        if '#@' in line:
+        if line.startswith('#@'):
             # We don't need the info about the author (at least for now)
             is_unnecessary = True
-        if '#!' in line:
+        if line.startswith('#!'):
             # We don't need the info about the abstract (at least for now)
             is_unnecessary = True
-        if '#c' in line:
+        if line.startswith('#c'):
             # We don't need the info about the publication venue
             is_unnecessary = True
         if not is_unnecessary:
-            new_file.write(line)
+            new_file.write(line + '\n')
     print 'Removed unnecessary information from the raw dataset.'
     print 'Created a new file ' + PREPROCESSED_DATA_FILENAME
     raw_file.close()
@@ -60,10 +62,11 @@ def main():
     raw_file = open(RAW_DATA_DIRECTORY + '/' + RAW_DATA_FILENAME, 'r')
     new_file = open(PREPROCESSED_DATA_DIRECTORY + '/' + ID_TITLE_MAPPINGS_FILENAME, 'w+')
     for line in raw_file:
-        if '#*' in line:
-            new_file.write(line)
-        elif '#index' in line:
-            new_file.write(line.strip() + '\n\r')
+        line = line.strip()
+        if line.startswith('#*'):
+            new_file.write(line + '\n')
+        elif line.startswith('#index'):
+            new_file.write(line + '\n\r')
     print 'Found all the mappings between index id and paper title'
     print 'Created a new file ' + ID_TITLE_MAPPINGS_FILENAME
     raw_file.close()
